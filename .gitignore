@@ -2,8 +2,8 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
 # C extensions
+data/*
 *.so
 
 # Distribution / packaging
