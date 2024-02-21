@@ -57,7 +57,7 @@ class ImageVisualizer:
                 ax.imshow(img, cmap=cmap)
                 ax.axis('off')
 
-        return fig, axes  # Return references for potential further customization
+        return fig, axes 
 
     @staticmethod
     def show_images(fig, axes):
