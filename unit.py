@@ -8,12 +8,13 @@ import numpy as np
 class TestDatasetShapes(unittest.TestCase):
     def setUp(self):
         """Set up common test fixtures."""
-        self.sample_diffusion = SampleDiffusionProcessGenerator()
         self.n_steps = 100
-        self.x0 = 0
         self.t0 = 0
         self.dt = 0.1
+        self.sample_diffusion = SampleDiffusionProcessGenerator(self.n_steps, self.t0, self.dt)
+        self.x0 = 0
         self.noise_strength_fn = self.sample_diffusion.noise_strength_constant
+
 
     def check_dataset_shape(self, dataset_loader, expected_shape):
         for i, (images, _) in enumerate(dataset_loader.loader):
@@ -31,7 +32,7 @@ class TestDatasetShapes(unittest.TestCase):
 
     def test_forward_diffusion_1d_length(self):
         """Test the output length of the forward_diffusion_1d method."""
-        x, t = self.sample_diffusion.forward_diffusion_1d(self.n_steps, self.x0, self.t0, self.dt, self.noise_strength_fn)
+        x, t = self.sample_diffusion.forward_diffusion_1d(self.x0, self.noise_strength_fn)
         self.assertEqual(len(x), self.n_steps + 1)
         self.assertEqual(len(t), self.n_steps + 1)
 
