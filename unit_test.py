@@ -2,8 +2,12 @@ import unittest
 from torchvision import transforms, datasets
 from torch.utils.data import DataLoader
 from dataloader import DatasetLoader
-from models import SampleDiffusionProcessGenerator
+from sample.sample import SampleDiffusionProcessGenerator
+from models import GaussianFourierProjection
 import numpy as np
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
 
 class TestDatasetShapes(unittest.TestCase):
     def setUp(self):
@@ -55,6 +59,32 @@ class TestDatasetShapes(unittest.TestCase):
         # Check for negative time
         score_neg_time = self.sample_diffusion.score_simple(x, x0, noise_strength, -1)
         self.assertGreater(score_neg_time, 0, "Score for negative time should be positive.")
+    
+    def test_forward_output_shape(self):
+        """
+        Tests that the forward method produces an output tensor with the expected shape.
+        """
+        embed_dim = 10
+        time_steps = 5
+        x = torch.randn(time_steps)
+        model = GaussianFourierProjection(embed_dim=embed_dim)
+        output = model(x)
+        self.assertEqual(output.shape, (time_steps, embed_dim))
 
+    def test_forward_sin_cos_values(self):
+        """
+        Tests that the forward method correctly calculates and combines sin and cos values.
+        """
+        x = torch.tensor([0, 1, 2])
+        model = GaussianFourierProjection(embed_dim=4)
+        output = model(x)
+
+        expected_sin = torch.sin(x[:, None] * model.W[None, :] * 2 * np.pi)
+        expected_cos = torch.cos(x[:, None] * model.W[None, :] * 2 * np.pi)
+
+        self.assertTrue(torch.allclose(output[:, :2], expected_sin))
+        self.assertTrue(torch.allclose(output[:, 2:4], expected_cos))
+
+        
 if __name__ == '__main__':
     unittest.main()
