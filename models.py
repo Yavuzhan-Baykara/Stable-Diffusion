@@ -66,3 +66,32 @@ class Unet(nn.Module):
         self.act = lambda x: x * torch.sigmoid(x)
         self.marginall_prob_std = marginal_prob_std
     
+    def forward(self, x, t, y=None):
+
+        embed = self.act(self.time_embed(t))
+        h1 = self.conv1(x) + self.dense1(embed)
+        h1 = self.act(self.gnorm1(h1))
+
+        h2 = self.conv2(h1) + self.dense2(embed)
+        h2 = self.act(self.gnorm2(h2))
+
+        h3 = self.conv3(h2) + self.dense3(embed)
+        h3 = self.act(self.gnorm3(h3))
+
+        h4 = self.conv4(h3) + self.dense4(embed)
+        h4 = self.act(self.gnorm4(h4))
+
+        h = self.tconv4(h4)
+        h += self.dense5(embed)
+        h = self.act(self.tgnorm4(h))
+        h = self.tconv3(torch.cat([h, h3], dim=1))
+        h += self.dense6(embed)
+        h = self.act(self.tgnorm3(h))
+        h = self.tconv2(torch.cat([h, h2], dim=1))
+        h += self.dense7(embed)
+        h = self.tconv1(torch.cat([h, h1], dim=1))
+
+        h = h / self.marginall_prob_std(t)[:, None, None, None]
+        return h
+    # ASKERE GİTTİM DÖNÜCEM..:)
+
