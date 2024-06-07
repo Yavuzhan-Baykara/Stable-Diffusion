@@ -7,6 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import functools
 
+DEVICE = "cuda"
 
 class GaussianFourierProjection(nn.Module):
     def __init__(self, embed_dim, scale=30.):
@@ -93,5 +94,13 @@ class Unet(nn.Module):
 
         h = h / self.marginall_prob_std(t)[:, None, None, None]
         return h
-    # ASKERE GİTTİM DÖNÜCEM..:)
 
+
+def marginal_prob_std(t, ro):
+    t = torch.tensor(t, device=DEVICE)
+
+    return torch.sqrt((ro**(2*t) - 1.) / 2. / np.log(ro))
+
+
+def diffusion_coeff(t, ro):
+    return torch.tensor(ro**t, device=DEVICE)
