@@ -21,9 +21,10 @@ class Dense(nn.Module):
     def forward(self, x):
         return self.dense(x)[..., None, None]
     
-class Unet(nn.Module):
-    def __init__(self, marginal_prob_std, embed_dim=256, channels=[32, 64, 128, 256]):
+class UNet(nn.Module):
+    def __init__(self, marginal_prob_std, channels=[32, 64, 128, 256], embed_dim=256):
         super().__init__()
+
         self.time_embed = nn.Sequential(
             GaussianFourierProjection(embed_dim=embed_dim),
             nn.Linear(embed_dim, embed_dim)
@@ -40,7 +41,7 @@ class Unet(nn.Module):
         self.conv3 = nn.Conv2d(channels[1], channels[2], 3, stride=2, bias=False)
         self.dense3 = Dense(embed_dim, channels[2])
         self.gnorm3 = nn.GroupNorm(32, num_channels=channels[2])
-        
+
         self.conv4 = nn.Conv2d(channels[2], channels[3], 3, stride=2, bias=False)
         self.dense4 = Dense(embed_dim, channels[3])
         self.gnorm4 = nn.GroupNorm(32, num_channels=channels[3])
@@ -60,20 +61,18 @@ class Unet(nn.Module):
         self.tconv1 = nn.ConvTranspose2d(channels[0] + channels[0], 1, 3, stride=1)
 
         self.act = lambda x: x * torch.sigmoid(x)
-        self.marginall_prob_std = marginal_prob_std
-    
-    def forward(self, x, t, y=None):
+        self.marginal_prob_std = marginal_prob_std
 
+    def forward(self, x, t, y=None):
         embed = self.act(self.time_embed(t))
+
         h1 = self.conv1(x) + self.dense1(embed)
         h1 = self.act(self.gnorm1(h1))
-
         h2 = self.conv2(h1) + self.dense2(embed)
         h2 = self.act(self.gnorm2(h2))
 
         h3 = self.conv3(h2) + self.dense3(embed)
         h3 = self.act(self.gnorm3(h3))
-
         h4 = self.conv4(h3) + self.dense4(embed)
         h4 = self.act(self.gnorm4(h4))
 
@@ -85,11 +84,12 @@ class Unet(nn.Module):
         h = self.act(self.tgnorm3(h))
         h = self.tconv2(torch.cat([h, h2], dim=1))
         h += self.dense7(embed)
+        h = self.act(self.tgnorm2(h))
         h = self.tconv1(torch.cat([h, h1], dim=1))
 
-        h = h / self.marginall_prob_std(t)[:, None, None, None]
+        h = h / self.marginal_prob_std(t)[:, None, None, None]
         return h
-
+    
 def marginal_prob_std(t, ro):
     t = torch.tensor(t, device=DEVICE)
 
@@ -97,4 +97,3 @@ def marginal_prob_std(t, ro):
 
 def diffusion_coeff(t, ro):
     return torch.tensor(ro**t, device=DEVICE)
-
