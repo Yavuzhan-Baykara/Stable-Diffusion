@@ -1,0 +1,1 @@
+{"epoch": 7, "average_loss": 65.96878067016601, "learning_rate": 0.001, "_timestamp": 1718092817.7512922, "_runtime": 225.17628931999207, "_step": 13, "sample_images": {"_type": "images/separated", "width": 242, "height": 242, "format": "png", "count": 1, "filenames": ["media/images/sample_images_13_2bdf88ebe89c63c1ba91.png"], "captions": ["Epoch 7"]}}

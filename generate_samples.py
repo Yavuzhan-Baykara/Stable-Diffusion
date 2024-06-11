@@ -36,3 +36,4 @@ plt.figure(figsize=(6, 6))
 plt.axis('off')
 plt.imshow(sample_grid.permute(1, 2, 0).cpu(), vmin=0., vmax=1.)
 plt.show()
+
