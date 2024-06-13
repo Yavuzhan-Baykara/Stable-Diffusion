@@ -1,0 +1,53 @@
+{
+    "os": "Windows-10-10.0.22631-SP0",
+    "python": "3.9.17",
+    "heartbeatAt": "2024-06-11T10:34:02.684130",
+    "startedAt": "2024-06-11T10:34:00.800911",
+    "docker": null,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "C:\\Users\\ybaykara\\Desktop\\Stable-Diffusion-main\\train.py",
+    "codePathLocal": "train.py",
+    "codePath": "train.py",
+    "git": {
+        "remote": "https://github.com/Yavuzhan-Baykara/Stable-Diffusion",
+        "commit": "00385df68a462215cc85634b92ede5bb48381ac2"
+    },
+    "email": "yavuzhan96@gmail.com",
+    "root": "C:/Users/ybaykara/Desktop/Stable-Diffusion-main",
+    "host": "arge30",
+    "username": "ybaykara",
+    "executable": "C:\\Users\\ybaykara\\Anaconda3\\envs\\Optik_goz_31082023\\python.exe",
+    "cpu_count": 6,
+    "cpu_count_logical": 12,
+    "cpu_freq": {
+        "current": 2592.0,
+        "min": 0.0,
+        "max": 2592.0
+    },
+    "cpu_freq_per_core": [
+        {
+            "current": 2592.0,
+            "min": 0.0,
+            "max": 2592.0
+        }
+    ],
+    "disk": {
+        "/": {
+            "total": 476.16276931762695,
+            "used": 334.0442657470703
+        }
+    },
+    "gpu": "NVIDIA GeForce GTX 1650",
+    "gpu_count": 1,
+    "gpu_devices": [
+        {
+            "name": "NVIDIA GeForce GTX 1650",
+            "memory_total": 4294967296
+        }
+    ],
+    "memory": {
+        "total": 31.841995239257812
+    }
+}

@@ -1,0 +1,1 @@
+{"epoch": 1, "average_loss": 891.9661517252604, "learning_rate": 0.001, "ro": 30.0, "tqdm_value": "Epoch 1/100, Average Loss: 891.96615, LR: 0.001:   0%|          | 0/100 [00:26<?, ?it/s]", "num_items": 60000, "_timestamp": 1718105305.1428864, "_runtime": 44.60437250137329, "_step": 0, "_wandb": {"runtime": 42}}

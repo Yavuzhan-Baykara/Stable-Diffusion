@@ -15,7 +15,7 @@ import wandb
 
 wandb.init(project='Mnist-Stable-Diffusion', entity='yavzan-baggins') 
 
-ro = 25.0
+ro = 30.0
 marginal_prob_std_fn = functools.partial(marginal_prob_std, ro=ro)
 diffusion_coeff_fn = functools.partial(diffusion_coeff, ro=ro)
 
