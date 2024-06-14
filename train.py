@@ -6,7 +6,7 @@ from torch.optim import Adam
 from torch.optim.lr_scheduler import LambdaLR
 from models import *
 from tqdm.notebook import trange, tqdm
-from forward import loss_fn
+from loss import loss_fn
 from sampler import Euler_Maruyama_sampler
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt

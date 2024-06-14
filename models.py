@@ -153,7 +153,8 @@ class UNet_res(nn.Module):
         return h
     
 
-    
+
+
 def marginal_prob_std(t, ro):
     t = torch.tensor(t, device=DEVICE)
 
