@@ -7,7 +7,7 @@ from torch.optim.lr_scheduler import LambdaLR
 from models import *
 from tqdm.notebook import trange, tqdm
 from loss import loss_fn
-from sampler import Euler_Maruyama_sampler, PC_sampler
+from sampler import Euler_Maruyama_sampler, PC_sampler, Langevin_Dynamics_sampler
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
 import numpy as np
@@ -70,7 +70,7 @@ for epoch in tqdm_epoch:
                'ro': ro, 'tqdm_value': str(tqdm_epoch), 'num_items': num_items})
     
     if epoch == n_epochs - 1:
-        samples = PC_sampler(score_model, marginal_prob_std_fn, diffusion_coeff_fn, batch_size=64, num_steps=num_steps, device=DEVICE)
+        samples = Langevin_Dynamics_sampler(score_model, marginal_prob_std_fn, diffusion_coeff_fn, batch_size=64, num_steps=num_steps, device=DEVICE)
         samples = samples.clamp(0.0, 1.0)
         sample_grid = make_grid(samples, nrow=int(np.sqrt(64)))
 

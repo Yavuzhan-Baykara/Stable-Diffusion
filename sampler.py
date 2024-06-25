@@ -62,3 +62,30 @@ def PC_sampler(score_model,
             x = corrector_step(x, batch_time_step, step_size)
     return x
 
+def Langevin_Dynamics_sampler(score_model,
+                              marginal_prob_std,
+                              diffusion_coeff,
+                              batch_size=64,
+                              x_shape=(1, 28, 28),
+                              num_steps=num_steps,
+                              device="cuda",
+                              eps=1e-3, y=None,
+                              step_size=0.01,
+                              langevin_steps=10):
+    t = torch.ones(batch_size, device=device)
+    init_x = torch.randn(batch_size, *x_shape, device=device) * marginal_prob_std(t)[:, None, None, None]
+    time_steps = torch.linspace(1., eps, num_steps, device=device)
+    x = init_x
+
+    with torch.no_grad():
+        for time_step in tqdm(time_steps):
+            batch_time_step = torch.ones(batch_size, device=device) * time_step
+            g = diffusion_coeff(batch_time_step)
+
+            for _ in range(langevin_steps):
+                grad = score_model(x, batch_time_step, y=y)
+                noise = torch.randn_like(x)
+                x = x + step_size * grad + torch.sqrt(2 * step_size) * noise
+
+            x = x + (g**2)[:, None, None, None] * score_model(x, batch_time_step, y=y) * step_size
+    return x
