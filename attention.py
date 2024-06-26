@@ -30,7 +30,7 @@ class CrossAttention(nn.Module):
             K = self.key(context)
             V = self.value(context)
 
-        scoremats = torch.einsum("BTH,BSH->BTS", Q, K) 
+        scoremats = torch.einsum("BTH,BSH->BTS", Q, K)
         attnmats = F.softmax(scoremats / math.sqrt(self.embed_dim), dim=-1) 
         ctx_vecs = torch.einsum("BTS,BSH->BTH", attnmats, V) 
 

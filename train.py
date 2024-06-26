@@ -16,25 +16,26 @@ import wandb
 wandb.init(project='Mnist-Stable-Diffusion', entity='yavzan-baggins') 
 
 ro = 30.0
+sampler = Euler_Maruyama_sampler
+digit = 9
+num_steps = 250
+n_epochs = 100
+batch_size = 1024
+lr = 1e-4
+lr_schedule = {50: 1e-4, 100: 1e-5}
+
 marginal_prob_std_fn = functools.partial(marginal_prob_std, ro=ro)
 diffusion_coeff_fn = functools.partial(diffusion_coeff, ro=ro)
 
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-score_model = torch.nn.DataParallel(UNet(marginal_prob_std=marginal_prob_std_fn))
+score_model = torch.nn.DataParallel(UNet_Tranformer(marginal_prob_std=marginal_prob_std_fn))
 score_model = score_model.to(device=DEVICE)
-
-num_steps = 250
-n_epochs = 100
-batch_size = 1024
-lr = 1e-3
 dataset = DatasetLoader(dataset_name="mnist", transform=transforms.ToTensor(), batch_size=batch_size, shuffle=True)
 data_loader = dataset.create_loader()
-
 optimizer = Adam(score_model.parameters(), lr=lr)
 scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: max(0.2, 0.98 ** epoch))
 
-lr_schedule = {50: 10e-3, 100: 10e-4}
 
 def get_learning_rate(epoch, lr_schedule, default_lr):
     for e in sorted(lr_schedule.keys()):
@@ -60,7 +61,7 @@ for epoch in tqdm_epoch:
         num_items += x.shape[0]
     
     scheduler.step()
-    lr_current = scheduler.get_last_lr()[0]
+    lr_current = current_lr
     
     avg_loss_epoch = avg_loss / num_items
     print('{} Average Loss: {:5f} lr {:.1e}'.format(epoch, avg_loss_epoch, lr_current))
@@ -70,7 +71,13 @@ for epoch in tqdm_epoch:
                'ro': ro, 'tqdm_value': str(tqdm_epoch), 'num_items': num_items})
     
     if epoch == n_epochs - 1:
-        samples = PC_sampler(score_model, marginal_prob_std_fn, diffusion_coeff_fn, batch_size=64, num_steps=num_steps, device=DEVICE)
+        samples = sampler(score_model,
+        marginal_prob_std_fn,
+        diffusion_coeff_fn,
+        batch_size,
+        num_steps=num_steps,
+        device=DEVICE,
+        y=digit*torch.ones(batch_size, dtype=torch.long))
         samples = samples.clamp(0.0, 1.0)
         sample_grid = make_grid(samples, nrow=int(np.sqrt(64)))
 
