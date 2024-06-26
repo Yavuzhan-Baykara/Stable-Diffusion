@@ -31,11 +31,8 @@ class TransformerBlock(nn.Module):
     
 
 class SpatialTransformer(nn.Module):
-    """
-    x: Input tensor with shape [batch, channels, height, width]
-    """
     def __init__(self, hidden_dim, context_dim):
-        super().__init__(SpatialTransformer, self)
+        super(SpatialTransformer, self).__init__()
         self.transformer = TransformerBlock(hidden_dim, context_dim)
 
     def forward(self, x, context=None):
@@ -43,8 +40,7 @@ class SpatialTransformer(nn.Module):
         x_in = x
         x = rearrange(x, "b c h w -> b (h w) c")
         x = self.transformer(x, context)
-        x = rearrange(x, 'b (h w) c -> b c h w', h=h, w=w) 
+        x = rearrange(x, 'b (h w) c -> b c h w', h=h, w=w)
+
         return x + x_in
-
-
 

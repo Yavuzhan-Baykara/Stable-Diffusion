@@ -6,7 +6,7 @@ from torch.optim import Adam
 from torch.optim.lr_scheduler import LambdaLR
 from models import *
 from tqdm.notebook import trange, tqdm
-from loss import loss_fn
+from loss import loss_fn, loss_fn_cond
 from sampler import Euler_Maruyama_sampler, PC_sampler, Langevin_Dynamics_sampler
 from torchvision.utils import make_grid
 import matplotlib.pyplot as plt
@@ -24,7 +24,7 @@ DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 score_model = torch.nn.DataParallel(UNet(marginal_prob_std=marginal_prob_std_fn))
 score_model = score_model.to(device=DEVICE)
 
-num_steps = 500
+num_steps = 250
 n_epochs = 100
 batch_size = 1024
 lr = 1e-3
@@ -34,7 +34,7 @@ data_loader = dataset.create_loader()
 optimizer = Adam(score_model.parameters(), lr=lr)
 scheduler = LambdaLR(optimizer, lr_lambda=lambda epoch: max(0.2, 0.98 ** epoch))
 
-lr_schedule = {75: 1e-3, 100: 1e-4}
+lr_schedule = {50: 10e-3, 100: 10e-4}
 
 def get_learning_rate(epoch, lr_schedule, default_lr):
     for e in sorted(lr_schedule.keys()):
@@ -52,7 +52,7 @@ for epoch in tqdm_epoch:
     
     for x, y in tqdm(data_loader):
         x = x.to(DEVICE)
-        loss = loss_fn(score_model, x, marginal_prob_std_fn)
+        loss = loss_fn_cond(score_model, x, y, marginal_prob_std_fn)
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -60,7 +60,7 @@ for epoch in tqdm_epoch:
         num_items += x.shape[0]
     
     scheduler.step()
-    lr_current = current_lr
+    lr_current = scheduler.get_last_lr()[0]
     
     avg_loss_epoch = avg_loss / num_items
     print('{} Average Loss: {:5f} lr {:.1e}'.format(epoch, avg_loss_epoch, lr_current))
@@ -70,7 +70,7 @@ for epoch in tqdm_epoch:
                'ro': ro, 'tqdm_value': str(tqdm_epoch), 'num_items': num_items})
     
     if epoch == n_epochs - 1:
-        samples = Langevin_Dynamics_sampler(score_model, marginal_prob_std_fn, diffusion_coeff_fn, batch_size=64, num_steps=num_steps, device=DEVICE)
+        samples = PC_sampler(score_model, marginal_prob_std_fn, diffusion_coeff_fn, batch_size=64, num_steps=num_steps, device=DEVICE)
         samples = samples.clamp(0.0, 1.0)
         sample_grid = make_grid(samples, nrow=int(np.sqrt(64)))
 
