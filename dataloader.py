@@ -12,17 +12,28 @@ class DatasetLoader:
         self.download = download 
         self.dataset = self.load_dataset()
         self.loader = self.create_loader()
+        self.class_names = self.get_class_names()
     
     def load_dataset(self):
         if self.dataset_name.lower() == "mnist":
             return datasets.MNIST(root=self.root, train=True, transform=self.transform, download=self.download)
         elif self.dataset_name.lower() == "cifar10": 
             return datasets.CIFAR10(root=self.root, train=True, transform=self.transform, download=self.download)
+        elif self.dataset_name.lower() == "cifar100": 
+            return datasets.CIFAR100(root=self.root, train=True, transform=self.transform, download=self.download)
+        elif self.dataset_name.lower() == "custom":
+            return datasets.ImageFolder(root=self.root, transform=self.transform)
         else:
             raise ValueError("Unsupported dataset") 
     
     def create_loader(self):
         return DataLoader(self.dataset, batch_size=self.batch_size, shuffle=self.shuffle)
+    
+    def get_class_names(self):
+        if self.dataset_name.lower() in ["cifar10", "cifar100"]:
+            return self.dataset.classes
+        else:
+            return []
 
 class ImageVisualizer:
     @staticmethod
@@ -49,7 +60,7 @@ class ImageVisualizer:
 
 
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
-dataset_loader = DatasetLoader('mnist', transform=transform, download=True)
+dataset_loader = DatasetLoader('cifar100', transform=transform, download=True)
 
 images, labels = next(iter(dataset_loader.loader))
 print(labels)

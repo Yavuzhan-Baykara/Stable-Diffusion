@@ -152,7 +152,7 @@ class UNet_res(nn.Module):
 
         h = h / self.marginal_prob_std(t)[:, None, None, None]
         return h
-class UNet_Tranformer(nn.Module):
+class UNet_Transformer(nn.Module):
     def __init__(self, marginal_prob_std, channels=[32, 64, 128, 256], embed_dim=256, text_dim=256, nClass=10):
         super().__init__()
         self.time_embed = nn.Sequential(
@@ -207,13 +207,12 @@ class UNet_Tranformer(nn.Module):
         h = self.tconv2(h + h2) + self.dense7(embed)
         h = self.act(self.tgnorm2(h))
         h = self.tconv1(h + h1)
-        h = h / self.marginal_prob_std(t)[:, None, None, None]
+        h = h / self.marginal_prob_std(t)[:, None, None, None]  # Marginal probability standardization
         return h
 
 
 def marginal_prob_std(t, ro):
     t = torch.tensor(t, device=DEVICE)
-
     return torch.sqrt((ro**(2*t) - 1.) / 2. / np.log(ro))
 
 def diffusion_coeff(t, ro):

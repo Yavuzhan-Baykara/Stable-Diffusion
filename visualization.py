@@ -14,7 +14,7 @@ diffusion_coeff_fn = functools.partial(diffusion_coeff, ro=ro)
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
 score_model = torch.nn.DataParallel(UNet_Tranformer(marginal_prob_std=marginal_prob_std_fn))
 score_model = score_model.to(device=DEVICE)
-ckpt = torch.load('models/Cifar.pth', map_location=DEVICE)
+ckpt = torch.load('models/Cifar-fine-tuning.pth', map_location=DEVICE)
 score_model.load_state_dict(ckpt)
 
 

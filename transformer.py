@@ -43,4 +43,3 @@ class SpatialTransformer(nn.Module):
         x = rearrange(x, 'b (h w) c -> b c h w', h=h, w=w)
 
         return x + x_in
-
