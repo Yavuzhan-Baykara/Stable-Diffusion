@@ -59,6 +59,10 @@ Diffusion models have shown great promise in generating high-quality samples in 
 2. Generating samples for each digit.
 3. Creating a GIF to visualize the generated samples.
 
+<div align="center">
+  <img src="./digit_samples.gif" alt="My Project GIF" width="200" height="200">
+</div>
+
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Built With
