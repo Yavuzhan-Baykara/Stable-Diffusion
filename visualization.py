@@ -30,9 +30,9 @@ ro = 30.0
 marginal_prob_std_fn = functools.partial(marginal_prob_std, ro=ro)
 diffusion_coeff_fn = functools.partial(diffusion_coeff, ro=ro)
 DEVICE = 'cuda' if torch.cuda.is_available() else 'cpu'
-score_model = torch.nn.DataParallel(UNet_Transformer(marginal_prob_std=marginal_prob_std_fn))
+score_model = torch.nn.DataParallel(UNet_Transformer(marginal_prob_std=marginal_prob_std_fn, dataset_name="cifar10"))
 score_model = score_model.to(device=DEVICE)
-ckpt = torch.load('models/Unet_res-ckpt.pth', map_location=DEVICE)
+ckpt = torch.load('models/cifar_epoch_1000.pth', map_location=DEVICE)
 score_model.load_state_dict(ckpt)
 
 sample_batch_size = 64
@@ -47,4 +47,4 @@ for digit in digits:
 
 # Create GIF
 frame_images = [Image.fromarray((frame * 255).astype(np.uint8)) for frame in frames]
-frame_images[0].save('digit_samples.gif', save_all=True, append_images=frame_images[1:], duration=200, loop=0)
+frame_images[0].save('digit_samples_cifar.gif', save_all=True, append_images=frame_images[1:], duration=200, loop=0)
